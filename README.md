@@ -79,13 +79,13 @@ Color support detection can be an expensive operation. Glint implements an effic
 ```
 BenchmarkGetEnvCache-12                    	100000000	        11.11 ns/op	       0 B/op	       0 allocs/op
 BenchmarkGetEnvCacheCached-12              	100000000	        11.16 ns/op	       0 B/op	       0 allocs/op
-BenchmarkIsColorSupported-12               	1000000000	         0.2523 ns/op	       0 B/op	       0 allocs/op
-BenchmarkIsColorSupportedCached-12         	1000000000	         0.2583 ns/op	       0 B/op	       0 allocs/op
+BenchmarkIsColorSupported-12               	1000000000	         0.25 ns/op	       0 B/op	       0 allocs/op
+BenchmarkIsColorSupportedCached-12         	1000000000	         0.25 ns/op	       0 B/op	       0 allocs/op
 BenchmarkForceColorSupport-12              	42567984	        30.15 ns/op	       0 B/op	       0 allocs/op
-BenchmarkIsColorSupportedLevel-12          	1000000000	         0.8992 ns/op	       0 B/op	       0 allocs/op
-BenchmarkIsColorSupportedLevelCached-12    	1000000000	         0.9220 ns/op	       0 B/op	       0 allocs/op
-BenchmarkDetectColorSupport-12             	1000000000	         0.2567 ns/op	       0 B/op	       0 allocs/op
-BenchmarkDetectColorSupportCached-12       	1000000000	         0.3227 ns/op	       0 B/op	       0 allocs/op
+BenchmarkIsColorSupportedLevel-12          	1000000000	         0.89 ns/op	       0 B/op	       0 allocs/op
+BenchmarkIsColorSupportedLevelCached-12    	1000000000	         0.92 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDetectColorSupport-12             	1000000000	         0.25 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDetectColorSupportCached-12       	1000000000	         0.32 ns/op	       0 B/op	       0 allocs/op
 BenchmarkIsTerminal-12                     	87035358	        14.71 ns/op	       0 B/op	       0 allocs/op
 BenchmarkIsCygwinTerminal-12               	89088843	        15.27 ns/op	       0 B/op	       0 allocs/op
 ```
