@@ -5,7 +5,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/droqsic/glint.svg)](https://pkg.go.dev/github.com/droqsic/glint)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Workflow](https://github.com/droqsic/glint/actions/workflows/go.yml/badge.svg)](https://github.com/droqsic/glint/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/droqsic/?no_cache=1)](https://goreportcard.com/report/github.com/droqsic/glint)
+[![Go Report Card](https://goreportcard.com/badge/github.com/droqsic/glint?nocache=1)](https://goreportcard.com/report/github.com/droqsic/glint)
 [![Latest Release](https://img.shields.io/github/v/release/droqsic/glint)](https://github.com/droqsic/glint/releases)
 [![Go Version](https://img.shields.io/badge/Go-1.24-blue.svg)](https://golang.org/)
 
