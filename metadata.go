@@ -8,7 +8,7 @@ package glint
 const (
 	Name        = "Glint"
 	Description = "A library to detect if the terminal supports color and force color support."
-	Version     = "1.0.0"
+	Version     = "1.0.1"
 	License     = "MIT"
 	RequireGo   = "1.24"
 	Author      = "Usama Arshad"
