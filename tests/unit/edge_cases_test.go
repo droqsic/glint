@@ -208,13 +208,13 @@ func TestBoundaryConditions(t *testing.T) {
 
 		// Test edge case terminal types
 		edgeCases := []string{
-			"", // Empty
-			"dumb", // Explicitly dumb
-			"unknown", // Unknown terminal
-			"xterm-", // Incomplete
-			"256color", // Missing prefix
-			"xterm-256", // Missing suffix
-			"XTERM-256COLOR", // Wrong case
+			"",                     // Empty
+			"dumb",                 // Explicitly dumb
+			"unknown",              // Unknown terminal
+			"xterm-",               // Incomplete
+			"256color",             // Missing prefix
+			"xterm-256",            // Missing suffix
+			"XTERM-256COLOR",       // Wrong case
 			"xterm-256color-extra", // Extra suffix
 		}
 
@@ -387,7 +387,7 @@ func TestErrorRecovery(t *testing.T) {
 		glint.ForceColor(true)
 		glint.ForceColor(false)
 		glint.ResetColor()
-		
+
 		core.ClearCache()
 		core.SetEnvCache()
 		core.GetEnvCache("INVALID_KEY")
@@ -400,7 +400,7 @@ func TestErrorRecovery(t *testing.T) {
 	t.Run("StateConsistencyAfterErrors", func(t *testing.T) {
 		// Ensure state remains consistent even after potential errors
 		glint.ResetColor()
-		
+
 		// Get baseline
 		baseline1 := glint.ColorSupport()
 		baseline2 := glint.ColorLevel()

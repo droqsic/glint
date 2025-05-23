@@ -3,6 +3,9 @@
 
 package platform
 
-// enableVirtualTerminal is a no-op implementation for non-Windows systems.
+// EnableVirtualTerminal is a no-op implementation for non-Windows systems.
 // Unix-like systems typically support ANSI escape sequences by default, so no additional configuration is required.
-func EnableVirtualTerminal() {}
+// It always returns false to indicate it's a no-op.
+func EnableVirtualTerminal() bool {
+	return false
+}

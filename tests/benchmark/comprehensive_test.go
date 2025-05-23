@@ -66,7 +66,7 @@ func BenchmarkEnvironmentVariableScenarios(b *testing.B) {
 		{
 			name: "WindowsTerminal",
 			envs: map[string]string{
-				"WT_SESSION":   "test-session",
+				"WT_SESSION":    "test-session",
 				"WT_PROFILE_ID": "test-profile",
 			},
 		},
@@ -266,13 +266,13 @@ func BenchmarkEdgeCases(b *testing.B) {
 			"TERM", "COLORTERM", "NO_COLOR", "FORCE_COLOR",
 			"TERM_PROGRAM", "WT_SESSION", "CI",
 		}
-		
+
 		originalValues := make(map[string]string)
 		for _, env := range envVars {
 			originalValues[env] = os.Getenv(env)
 			os.Unsetenv(env)
 		}
-		
+
 		defer func() {
 			for env, value := range originalValues {
 				if value != "" {

@@ -16,29 +16,29 @@ func TestComprehensiveCoverage(t *testing.T) {
 	t.Run("AllPublicFunctions", func(t *testing.T) {
 		// Test all public functions in glint package
 		glint.ResetColor()
-		
+
 		// ColorSupport
 		colorSupport := glint.ColorSupport()
 		_ = colorSupport
-		
+
 		// ColorLevel
 		colorLevel := glint.ColorLevel()
 		_ = colorLevel
-		
+
 		// ForceColor
 		glint.ForceColor(true)
 		glint.ForceColor(false)
-		
+
 		// ResetColor
 		glint.ResetColor()
 	})
 
 	t.Run("AllCoreFunctions", func(t *testing.T) {
 		// Test all functions in core package
-		
+
 		// SetEnvCache
 		core.SetEnvCache()
-		
+
 		// GetEnvCache with all known keys
 		knownKeys := []string{
 			core.EnvTerm,
@@ -59,23 +59,23 @@ func TestComprehensiveCoverage(t *testing.T) {
 			core.EnvCustomColor256,
 			core.EnvCustomColor24,
 		}
-		
+
 		for _, key := range knownKeys {
 			result := core.GetEnvCache(key)
 			_ = result
 		}
-		
+
 		// TerminalColorLevel
 		level := core.TerminalColorLevel()
 		_ = level
-		
+
 		// ClearCache
 		core.ClearCache()
 	})
 
 	t.Run("AllPlatformFunctions", func(t *testing.T) {
 		// Test all functions in platform package
-		
+
 		// EnableVirtualTerminal
 		result := platform.EnableVirtualTerminal()
 		_ = result
@@ -83,13 +83,13 @@ func TestComprehensiveCoverage(t *testing.T) {
 
 	t.Run("AllProbeFunctions", func(t *testing.T) {
 		// Test all functions in probe package
-		
+
 		fd := os.Stdout.Fd()
-		
+
 		// IsTerminal
 		isTerminal := probe.IsTerminal(fd)
 		_ = isTerminal
-		
+
 		// IsCygwinTerminal
 		isCygwin := probe.IsCygwinTerminal(fd)
 		_ = isCygwin
@@ -108,7 +108,7 @@ func TestAllLevelConstants(t *testing.T) {
 	for _, level := range levels {
 		// Use each level constant
 		_ = level
-		
+
 		// Test string representation if available
 		levelInt := int8(level)
 		_ = levelInt
@@ -140,7 +140,7 @@ func TestAllEnvironmentConstants(t *testing.T) {
 	for _, envConst := range envConstants {
 		// Use each environment constant
 		_ = envConst
-		
+
 		// Test with GetEnvCache
 		value := core.GetEnvCache(envConst)
 		_ = value
@@ -222,7 +222,7 @@ func TestAllCodePaths(t *testing.T) {
 			os.Setenv(tc.env, tc.value)
 			glint.ResetColor()
 			core.ClearCache()
-			
+
 			level := glint.ColorLevel()
 			_ = level
 		}
