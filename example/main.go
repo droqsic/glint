@@ -7,21 +7,15 @@ import (
 )
 
 func main() {
-
 	// Check if terminal supports colors
-	if glint.IsColorSupported() {
-		fmt.Println("Terminal supports colors")
-	} else {
-		fmt.Println("Terminal does not support colors")
-	}
+	fmt.Println("Terminal supports colors:", glint.ColorSupport())
 
-	// Get a human-readable description of the color support level
-	colorLevel := glint.IsColorSupportedLevel()
-	fmt.Printf("Color support level: %s\n", colorLevel)
+	// Get color support level
+	fmt.Println("Color support level:", glint.ColorLevel())
 
 	// Force color support
-	fmt.Println("Before forcing:", glint.IsColorSupported())
-	glint.ForceColorSupport()
-	fmt.Println("After forcing:", glint.IsColorSupported())
+	glint.ForceColor(true)
 
+	// Reset color support
+	glint.ResetColor()
 }

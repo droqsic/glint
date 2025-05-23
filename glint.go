@@ -3,124 +3,102 @@ package glint
 import (
 	"os"
 	"runtime"
-	"strings"
 	"sync"
 
-	"github.com/droqsic/glint/feature"
-	"github.com/droqsic/glint/platform"
+	"github.com/droqsic/glint/internal/core"
+	"github.com/droqsic/glint/internal/platform"
 	"github.com/droqsic/probe"
 )
 
 var (
-	debugForceColor string    // GODEBUG setting for forcing color support
-	debugInitOnce   sync.Once // Ensures debug settings are initialized only once
+	colorSupport           bool       // colorSupport stores the detected terminal color support status
+	colorSupportOnce       sync.Once  // colorSupportOnce ensures color support detection runs only once
+	colorLevel             core.Level // colorLevel stores the detected terminal color level
+	colorLevelOnce         sync.Once  // colorLevelOnce ensures color level detection runs only once
+	forceColorSupport      *bool      // forceColorSupport allows overriding automatic color support detection, nil means automatic detection, non-nil means forced value
+	forceColorSupportMutex sync.Mutex // forceColorSupportMutex protects concurrent access to forceColorSupport
 )
 
-var (
-	colorLevelResult           string    // Caches the result of IsColorSupportedLevel
-	colorLevelResultOnce       sync.Once // Ensures color level detection is performed only once
-	isColorSupportedResult     bool      // Caches the result of IsColorSupported
-	isColorSupportedResultOnce sync.Once // Ensures color support detection is performed only once
-)
+// ColorSupport determines whether the current terminal supports color output.
+// It checks if the output is a terminal and if the terminal supports color.
+// The result is cached after the first call for performance. This function is thread-safe.
+func ColorSupport() bool {
+	forceColorSupportMutex.Lock()
 
-// IsTerminal checks if the file descriptor is a terminal.
-// It returns true if the file descriptor is a terminal, or false otherwise.
-// The parameter should be a file descriptor (e.g., os.Stdin.Fd(), os.Stdout.Fd(), os.Stderr.Fd()).
-func IsTerminal(fd uintptr) bool {
-	return probe.IsTerminal(fd)
-}
+	if forceColorSupport != nil {
+		defer forceColorSupportMutex.Unlock()
+		return *forceColorSupport
+	}
 
-// IsCygwinTerminal checks if the file descriptor is a Cygwin/MSYS2 terminal.
-// It returns true if the file descriptor is a Cygwin/MSYS2 terminal, or false otherwise.
-// The parameter should be a file descriptor (e.g., os.Stdin.Fd(), os.Stdout.Fd(), os.Stderr.Fd()).
-func IsCygwinTerminal(fd uintptr) bool {
-	return probe.IsCygwinTerminal(fd)
-}
+	forceColorSupportMutex.Unlock()
 
-// IsColorSupported checks if the terminal supports color.
-// It returns true if the terminal supports at least 16 colors.
-// It returns false if the terminal does not support color or if the output is not a terminal.
-// It is optimized for zero allocations and maximum performance, using caching and sync.Once after the first call.
-func IsColorSupported() bool {
-	isColorSupportedResultOnce.Do(isColorSupported)
-	return isColorSupportedResult
-}
-
-// IsColorSupportedLevel checks the color support level of the terminal.
-// It returns a string describing the color support level.
-// It returns an error message if the output is not a terminal.
-// It is optimized for zero allocations and maximum performance, using caching and sync.Once after the first call.
-func IsColorSupportedLevel() string {
-	colorLevelResultOnce.Do(func() {
-		if !IsTerminal(os.Stdout.Fd()) && !IsCygwinTerminal(os.Stdout.Fd()) {
-			colorLevelResult = feature.LevelErrorDesc
+	colorSupportOnce.Do(func() {
+		if !probe.IsTerminal(os.Stdout.Fd()) && !probe.IsCygwinTerminal(os.Stdout.Fd()) {
+			colorSupport = false
 			return
 		}
 
-		level := feature.DetectColorSupport()
-		colorLevelResult = feature.GetColorDescription(level)
+		if core.TerminalColorLevel() == core.LevelNone {
+			colorSupport = false
+			return
+		}
+
+		colorSupport = true
 	})
-
-	return colorLevelResult
+	return colorSupport
 }
 
-// ForceColorSupport forces the terminal to support color.
-// It should be called before any color output.
-// It is optimized for zero allocations and maximum performance, using caching and sync.Once after the first call.
-// On Windows, it enables virtual terminal processing to support ANSI escape sequences.
-// On other platforms, it's a no-op as ANSI escape sequences are supported by default.
-func ForceColorSupport() {
-	debugInitOnce.Do(initDebugSettings)
-	if debugForceColor == "1" {
-		feature.DetectColorSupport()
-		return
+// ColorLevel determines the color support level of the current terminal.
+// It checks if the output is a terminal and what level of color it supports.
+// The result is cached after the first call for performance. This function is thread-safe.
+func ColorLevel() core.Level {
+	if ColorSupport() {
+		colorLevelOnce.Do(func() {
+			if !probe.IsTerminal(os.Stdout.Fd()) && !probe.IsCygwinTerminal(os.Stdout.Fd()) {
+				colorLevel = core.LevelNone
+				return
+			}
+			colorLevel = core.TerminalColorLevel()
+		})
 	}
-
-	if !IsTerminal(os.Stdout.Fd()) && !IsCygwinTerminal(os.Stdout.Fd()) {
-		return
-	}
-
-	feature.DetectColorSupport()
-
-	if runtime.GOOS == "windows" {
-		platform.EnableVirtualTerminal()
-	}
+	return colorLevel
 }
 
-// isColorSupported detects if the terminal supports color.
-// It is called once and caches the result for future use.
-// It checks the NO_COLOR environment variable, the terminal type, and the color support level.
-func isColorSupported() {
-	if feature.GetEnvCache(feature.EnvNoColor) != "" {
-		isColorSupportedResult = false
-		return
+// ForceColor overrides automatic color support detection with a fixed value.
+// This is useful for applications that want to explicitly enable or disable color regardless of terminal capabilities.
+// However, it still respects the NO_COLOR environment variable - if NO_COLOR is set, colors will be disabled regardless.
+func ForceColor(value bool) {
+	forceColorSupportMutex.Lock()
+	defer forceColorSupportMutex.Unlock()
+
+	if value && core.GetEnvCache(core.EnvNoColor) != "" {
+		value = false
 	}
 
-	fd := os.Stdout.Fd()
-	if !IsTerminal(fd) && !IsCygwinTerminal(fd) {
-		isColorSupportedResult = false
-		return
-	}
-
-	level := feature.DetectColorSupport()
-	isColorSupportedResult = level >= feature.Level16
-
-}
-
-// initDebugSettings initializes debug settings from GODEBUG environment variable.
-// It parses the GODEBUG string to extract glint-specific debug settings.
-// This function is called automatically when needed and is thread-safe.
-func initDebugSettings() {
-	godebug := os.Getenv("GODEBUG")
-	if godebug == "" {
-		return
-	}
-
-	parts := strings.Split(godebug, ",")
-	for _, part := range parts {
-		if strings.HasPrefix(part, "glintforcecolor=") {
-			debugForceColor = strings.TrimPrefix(part, "glintforcecolor=")
-			break
+	if value && runtime.GOOS == "windows" {
+		vtEnabled := platform.EnableVirtualTerminal()
+		if !vtEnabled {
+			colorLevelOnce = sync.Once{}
+			colorLevelOnce.Do(func() {
+				colorLevel = core.Level16
+			})
 		}
 	}
+
+	forceColorSupport = &value
+	colorSupportOnce = sync.Once{}
+}
+
+// ResetColor resets color support detection to automatic mode, clearing any previously forced settings.
+// This allows the system to detect terminal capabilities again, and also clears any previously forced settings.
+func ResetColor() {
+	forceColorSupportMutex.Lock()
+	defer forceColorSupportMutex.Unlock()
+
+	forceColorSupport = nil
+	colorSupportOnce = sync.Once{}
+	colorLevelOnce = sync.Once{}
+
+	colorSupport = false
+	colorLevel = core.LevelNone
 }

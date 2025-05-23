@@ -34,21 +34,23 @@ go get github.com/droqsic/glint
 package main
 
 import (
-    "fmt"
-    "github.com/droqsic/glint"
+	"fmt"
+
+	"github.com/droqsic/glint"
 )
 
 func main() {
-    if glint.IsColorSupported() {
-        fmt.Println("Terminal supports colors")
-    } else {
-        fmt.Println("Terminal does not support colors")
-    }
+	// Check if terminal supports colors
+	fmt.Println("Terminal supports colors:", glint.ColorSupport())
 
-    fmt.Printf("Color support level: %s\n", glint.IsColorSupportedLevel())
+	// Get color support level
+	fmt.Println("Color support level:", glint.ColorLevel())
 
-    // Force-enable color support (use cautiously)
-    glint.ForceColorSupport()
+	// Force color support
+	glint.ForceColor(true)
+
+    // Reset color support
+	glint.ResetColor()
 }
 ```
 
@@ -90,7 +92,7 @@ Glint can detect four levels of color support:
 
 ## Thread Safety
 
-Glint is built with concurrency in mind. It uses synchronization mechanisms such as `sync.Once` and `sync.Map` to manage its internal cache, allowing multiple goroutines to access color support checks safely and efficiently. The design is optimized for read-heavy workloads, ensuring high throughput and low latency even under concurrent access. This makes Glint well-suited for use in modern, parallelized Go applications.
+Glint is built with concurrency in mind. It uses synchronization mechanisms such as `sync.Once` and `sync.RWMutex` to manage its internal cache, allowing multiple goroutines to access color support checks safely and efficiently. The design is optimized for read-heavy workloads, ensuring high throughput and low latency even under concurrent access. This makes Glint well-suited for use in modern, parallelized Go applications.
 
 ## Contributing
 
